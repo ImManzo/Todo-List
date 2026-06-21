@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do List Manager — Mansour Kanswa</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2334506A'/%3E%3Cstop offset='60%25' stop-color='%231F3346'/%3E%3Cstop offset='100%25' stop-color='%2316242F'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='42' font-family='Arial,Helvetica,sans-serif' font-size='32' font-weight='700' fill='%23ffffff' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:#FAFAF8; color:#1A1A1A; font-family:'Inter',-apple-system,sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .top-bar{ background:rgba(250,250,248,0.86); backdrop-filter:blur(10px); border-bottom:1px solid #E5E3DD; padding:16px 28px; display:flex; justify-content:space-between; align-items:center; }
+  .back-link{ font-family:'JetBrains Mono',monospace; font-size:13px; color:#6B6B6B; text-decoration:none; display:flex; align-items:center; gap:6px; transition:color .15s; }
+  .back-link:hover{ color:#1A1A1A; }
+  .back-link svg{ width:14px; height:14px; }
+  .page-title{ font-size:13px; font-weight:600; color:#2D4356; letter-spacing:0.04em; }
+  .project-page{ max-width:900px; margin:0 auto; padding:40px 28px 60px; }
+  .project-header{ margin-bottom:40px; }
+  .project-header h1{ font-size:28px; font-weight:800; letter-spacing:-0.02em; margin-bottom:8px; }
+  .project-header p{ font-size:15px; color:#4A4A48; max-width:500px; }
+  .preview-section{ background:#fff; border:1px solid #E5E3DD; border-radius:14px; padding:40px; margin-bottom:40px; min-height:400px; }
+  .code-section h2{ font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#1A1A1A; margin-bottom:16px; }
+  pre{ background:#1a1a2e; color:#e0e0e0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.7; padding:24px; border-radius:10px; overflow-x:auto; tab-size:2; }
+  .hl-kw{ color:#c792ea; } .hl-fn{ color:#82aaff; } .hl-str{ color:#c3e88d; } .hl-num{ color:#f78c6c; } .hl-cm{ color:#546e7a; font-style:italic; } .hl-op{ color:#89ddff; }
+  footer{ text-align:center; padding:30px 28px; border-top:1px solid #E5E3DD; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:#6B6B6B; }
+
+  .todo-app{ max-width:450px; margin:0 auto; }
+  .todo-input-row{ display:flex; gap:8px; margin-bottom:16px; }
+  .todo-input-row input{ flex:1; padding:10px 14px; border:1px solid #E5E3DD; border-radius:8px; font-size:14px; outline:none; }
+  .todo-input-row input:focus{ border-color:#2D4356; }
+  .todo-input-row button{ padding:10px 18px; background:#1A1A1A; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; }
+  .todo-input-row button:hover{ background:#2D4356; }
+  .todo-stats{ display:flex; gap:16px; margin-bottom:16px; font-size:13px; color:#6B6B6B; font-family:'JetBrains Mono',monospace; }
+  .todo-list{ list-style:none; }
+  .todo-item{ display:flex; align-items:center; gap:10px; padding:12px 14px; border:1px solid #E5E3DD; border-radius:8px; margin-bottom:8px; background:#fff; transition:transform .15s; }
+  .todo-item:hover{ transform:translateY(-1px); }
+  .todo-item.done .todo-text{ text-decoration:line-through; color:#6B6B6B; }
+  .todo-check{ width:18px; height:18px; border-radius:4px; border:2px solid #2D4356; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; flex-shrink:0; transition:.15s; }
+  .todo-check.done{ background:#2D4356; }
+  .todo-text{ flex:1; font-size:14px; }
+  .todo-del{ background:none; border:none; color:#ccc; cursor:pointer; font-size:16px; padding:2px 6px; transition:color .15s; }
+  .todo-del:hover{ color:#e94560; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a class="back-link" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m7-7l-7 7 7 7"/></svg>Back to portfolio</a>
+  <span class="page-title">Project / To-Do List Manager</span>
+</div>
+<div class="project-page">
+  <div class="project-header">
+    <h1>To-Do List Manager</h1>
+    <p>A task management app with add, complete, and delete functionality — tasks persist in localStorage.</p>
+  </div>
+  <div class="preview-section">
+    <div class="todo-app">
+      <div class="todo-input-row">
+        <input type="text" id="todoInput" placeholder="Add a new task...">
+        <button onclick="addTodo()">Add</button>
+      </div>
+      <div class="todo-stats">
+        <span id="todoTotal">Total: 0</span>
+        <span id="todoDone">Done: 0</span>
+      </div>
+      <ul class="todo-list" id="todoList"></ul>
+    </div>
+  </div>
+  <div class="code-section">
+    <h2>Source Code</h2>
+    <pre><span class="hl-cm">// To-Do List Manager with localStorage persistence</span>
+
+<span class="hl-kw">let</span> todos = <span class="hl-fn">JSON</span>.<span class="hl-fn">parse</span>(<span class="hl-fn">localStorage</span>.<span class="hl-fn">getItem</span>(<span class="hl-str">"todos"</span>)) || [];
+
+<span class="hl-kw">function</span> <span class="hl-fn">save</span>() {
+  <span class="hl-fn">localStorage</span>.<span class="hl-fn">setItem</span>(<span class="hl-str">"todos"</span>, <span class="hl-fn">JSON</span>.<span class="hl-fn">stringify</span>(todos));
+  <span class="hl-fn">render</span>();
+}
+
+<span class="hl-kw">function</span> <span class="hl-fn">addTodo</span>() {
+  <span class="hl-kw">const</span> input = document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"todoInput"</span>);
+  <span class="hl-kw">const</span> text = input.value.<span class="hl-fn">trim</span>();
+  <span class="hl-kw">if</span> (!text) <span class="hl-kw">return</span>;
+  todos.<span class="hl-fn">push</span>({ id: <span class="hl-fn">Date</span>.<span class="hl-fn">now</span>(), text, done: <span class="hl-kw">false</span> });
+  input.value = <span class="hl-str">""</span>;
+  <span class="hl-fn">save</span>();
+}
+
+<span class="hl-kw">function</span> <span class="hl-fn">toggleTodo</span>(id) {
+  <span class="hl-kw">const</span> todo = todos.<span class="hl-fn">find</span>(t => t.id === id);
+  <span class="hl-kw">if</span> (todo) { todo.done = !todo.done; <span class="hl-fn">save</span>(); }
+}
+
+<span class="hl-kw">function</span> <span class="hl-fn">deleteTodo</span>(id) {
+  todos = todos.<span class="hl-fn">filter</span>(t => t.id !== id);
+  <span class="hl-fn">save</span>();
+}
+
+<span class="hl-kw">function</span> <span class="hl-fn">render</span>() {
+  <span class="hl-kw">const</span> list = document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"todoList"</span>);
+  list.<span class="hl-fn">innerHTML</span> = todos.<span class="hl-fn">map</span>(t => <span class="hl-str">`&lt;li class="todo-item ${t.done ? 'done' : ''}"&gt;
+    &lt;span class="todo-check ${t.done ? 'done' : ''}" onclick="toggleTodo(${t.id})"&gt;${t.done ? '✓' : ''}&lt;/span&gt;
+    &lt;span class="todo-text"&gt;${t.text}&lt;/span&gt;
+    &lt;button class="todo-del" onclick="deleteTodo(${t.id})"&gt;✕&lt;/button&gt;
+  &lt;/li&gt;`</span>).<span class="hl-fn">join</span>(<span class="hl-str">""</span>);
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"todoTotal"</span>).textContent = <span class="hl-str">`Total: ${todos.length}`</span>;
+  document.<span class="hl-fn">getElementById</span>(<span class="hl-str">"todoDone"</span>).textContent = <span class="hl-str">`Done: ${todos.<span class="hl-fn">filter</span>(t => t.done).length}`</span>;
+}
+
+<span class="hl-fn">render</span>();</pre>
+  </div>
+</div>
+<footer><span>Mansour Kanswa</span></footer>
+<script>
+  let todos = JSON.parse(localStorage.getItem("todos")) || [];
+  function save() { localStorage.setItem("todos", JSON.stringify(todos)); render(); }
+  function addTodo() {
+    const input = document.getElementById("todoInput");
+    const text = input.value.trim();
+    if (!text) return;
+    todos.push({ id: Date.now(), text, done: false });
+    input.value = ""; save();
+  }
+  function toggleTodo(id) {
+    const todo = todos.find(t => t.id === id);
+    if (todo) { todo.done = !todo.done; save(); }
+  }
+  function deleteTodo(id) {
+    todos = todos.filter(t => t.id !== id); save();
+  }
+  function render() {
+    const list = document.getElementById("todoList");
+    list.innerHTML = todos.map(t => `<li class="todo-item ${t.done ? 'done' : ''}"><span class="todo-check ${t.done ? 'done' : ''}" onclick="toggleTodo(${t.id})">${t.done ? '✓' : ''}</span><span class="todo-text">${t.text}</span><button class="todo-del" onclick="deleteTodo(${t.id})">✕</button></li>`).join("");
+    document.getElementById("todoTotal").textContent = `Total: ${todos.length}`;
+    document.getElementById("todoDone").textContent = `Done: ${todos.filter(t => t.done).length}`;
+  }
+  render();
+</script>
+</body>
+</html>
